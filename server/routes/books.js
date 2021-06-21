@@ -2,33 +2,97 @@ var express = require('express');
 const mysql = require('mysql');
 var router = express.Router();
 
-const connectionPool = require('../database/connection-pool')
+const connectionPool = require('../database/connection-pool');
+const BookRepository = require('../database/book-repository');
+
+let repository = new BookRepository(connectionPool);
 
 // read in db.js and print out values
 // now in server/bin/www file
 // const db = require('../config/db');
 // console.log(db.user, db.password);
 
-/* GET users listing. */
-router.get('/', function(req, res, next) {
+// get one record
+router.get('/:id', function(req, res) {
 
-  //const conn = mysql.createConnection(db);
-  //conn.connect(err => {
-  //  if (err) throw err;
-  //  console.log('Connected');
-
-    const book = {
-      author: 'Arif Syed',
-      title: 'bikes2',
-      published: '2021-08-19'
+  repository.get(req.params.id, (err, result) => {
+    if(err) {
+      res.status(500).json({'error': err.toString()});
     }
+    else {
+      //console.log('Result is',result);
+      res.status(200).json(result);
+    }
+  });
 
-    connectionPool.getPool().query('insert into books set ?', book, (err, result) => {
-      if(err) throw err;
-      console.log('1 record inserted');
+
+});
+
+// update record
+router.put('/:id', function(req, res) {
+  repository.update(req.params.id, req.body, (err, result) => {
+    if(err) {
+      res.status(500).json({'error': err.toString()});
+    }
+    else {
+      console.log('Result is',result);
+      res.sendStatus(200);
+    }
+  });
+
+});
+
+
+router.delete('/:id', function(req, res) {
+  repository.delete(req.params.id, (err, result) => {
+    if(err) {
+      res.status(500).json({'error': err.toString()});
+    }
+    else {
+      console.log('Result is',result);
+      res.sendStatus(200);
+    }
+  });
+
+});
+
+/* GET all books. */
+router.get('/', function(req, res) {
+
+  repository.getAll((err, result) => {
+    if(err) {
+      res.status(500).json({'error': err.toString()});
+    }
+    else {
+      console.log('Result is',result);
+      res.status(200).json(result);
+    }
+  });
+});
+
+
+// insert record - save book
+router.post('/', function(req, res) {
+    console.log('Post Body',req.body);
+
+    //const conn = mysql.createConnection(db);
+    //conn.connect(err => {
+    //  if (err) throw err;
+    //  console.log('Connected');
+
+    repository.save(req.body, (err, result) => {
+      if(err) {
+        res,status(500).json({'error': err.toString()});
+      }
+      else {
+        console.log('Result is',result);
+        res.sendStatus(200);
+      }
     });
 
-    res.send('books for sale');
-});
+    });
+
+
+
 
 module.exports = router;

@@ -13,8 +13,8 @@ connectionPool.init();
 /**
  * Get port from environment and store in Express.
  */
-
-var port = normalizePort(process.env.PORT || '3000');
+// changes port for server code ...Client REACT still running on 3000
+var port = normalizePort(process.env.PORT || '4000');
 app.set('port', port);
 
 /**
